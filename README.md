@@ -29,8 +29,57 @@ Ce projet déploie une **architecture Web 2‑tiers sécurisée** sur **Microsof
 - Modules réutilisables :
     - `network`
     - `compute`
+---
 
-    
+### 🔐 Sécurité
+- 🔑 Authentification **SSH uniquement**
+- ❌ Aucun mot de passe stocké
+- 🛡️ **NSG strictement configuré**
+- 🔒 **Terraform Remote State**
+- Azure Storage Account
+- Verrouillage d’état (*State Locking*)
+
+---
+
+## 🚀 Déploiement
+### ✅ Pré‑requis
+- Terraform ≥ 1.0
+- Azure CLI installé
+- Authentification Azure :
+```bash
+az login
+git clone https://github.com/AbdessamadMAHJOUBIdevops/azure-terraform-enterprise-architecture.git
+cd azure-enterprise-project/environments/dev
+terraform init
+terraform plan
+terraform apply 
+
+
+---
+
+
+## 📂 Structure du Projet
+
+```plaintext
+├── modules/
+│   ├── network/              # VNet, Subnets, NSG
+│   └── compute/              # VM Linux + Nginx
+│
+├── environments/
+│   ├── dev/
+│   │   ├── main.tf           # Point d’entrée
+│   │   ├── provider.tf       # Backend Azure Storage
+│   │   ├── variables.tf
+│   │   └── terraform.tfvars  # Région, tags, projet
+│
+└── README.md                 # Documentation
+
+
+
+
+
+
+
 ## 🏗️ Architecture Cloud
 
 ### 🔹 Vue d’ensemble
