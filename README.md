@@ -46,7 +46,8 @@ Ce projet déploie une **architecture Web 2‑tiers sécurisée** sur **Microsof
 - Terraform ≥ 1.0
 - Azure CLI installé
 - Authentification Azure :
-```bash
+
+``bash
 az login
 git clone https://github.com/AbdessamadMAHJOUBIdevops/azure-terraform-enterprise-architecture.git
 cd azure-enterprise-project/environments/dev
