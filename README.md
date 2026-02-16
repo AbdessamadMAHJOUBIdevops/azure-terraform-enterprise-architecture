@@ -41,15 +41,7 @@ Ce projet déploie une **architecture Web 2‑tiers sécurisée** sur **Microsof
 
 ---
 
-## 🚀 Déploiement
-### ✅ Pré‑requis
-- Terraform ≥ 1.0
-- Azure CLI installé
-- Authentification Azure :
 
-
-
----
 
 
 
