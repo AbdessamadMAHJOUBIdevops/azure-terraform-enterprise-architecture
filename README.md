@@ -43,3 +43,32 @@ graph TD
             end
         end
     end
+
+---
+
+## ✨ Fonctionnalités Clés
+
+### 🧩 Modularité
+- Architecture Terraform **100 % modulaire**
+- Modules réutilisables :
+  - `network`
+  - `compute`
+
+### 🔐 Sécurité
+- 🔑 Authentification **SSH uniquement**
+- ❌ Aucun mot de passe stocké
+- 🛡️ **NSG strictement configuré**
+- 🔒 **Terraform Remote State**
+  - Azure Storage Account
+  - Verrouillage d’état (*State Locking*)
+
+
+### ⚙️ Automatisation
+- Script de démarrage **idempotent**
+- Protection contre les **race conditions**
+- Installation automatique de **Nginx**
+
+### 🏷️ Gouvernance & FinOps
+- Stratégie de **tagging centralisée**
+- Suivi des coûts Azure
+- Lisibilité et auditabilité des ressources
