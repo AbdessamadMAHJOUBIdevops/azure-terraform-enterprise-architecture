@@ -80,6 +80,24 @@ graph TD
 
 
 ```
+
+---
+
+## 📂 Structure du Projet
+
+```
+
+├── modules/                  # Modules réutilisables (Network, Compute)
+├── environments/             # Environnements (Dev, Prod...)
+│   └── dev/
+│       ├── main.tf           # Point d'entrée
+│       ├── provider.tf       # Backend Azure Storage
+│       └── terraform.tfvars  # Variables (Région, Projet...)
+└── README.md                 # Documentation
+
+```
+
+
 ## 🚀 Déploiement
 ### ✅ Pré‑requis
 - Terraform ≥ 1.0
@@ -95,4 +113,11 @@ terraform plan
 terraform apply 
 
 ```
+
+---
+
+
+
+👤 Auteur
+Abdessamad Mahjoubi - DevOps & Cloud Engineer
  
