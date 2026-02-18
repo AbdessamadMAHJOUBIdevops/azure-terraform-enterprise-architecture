@@ -2,8 +2,11 @@
 
 > **Infrastructure Cloud sécurisée, modulaire et prête pour la production sur Microsoft Azure**, conçue selon les standards **Enterprise / DevOps / FinOps**.
 
+[![Made by DigitalPro](https://img.shields.io/badge/Made%20by-MAHJOUBI-Portfolio)](https://abdessamadmahjoubidevops.github.io/portfolio/)
+
+
 <p align="center">
-  <img src="https://img.shields.io/badge/Terraform-1.0+-623CE4?style=for-the-badge&logo=terraform" />
+  <img src="https://img.shields.io/badge/Terraform-1.10+-623CE4?style=for-the-badge&logo=terraform" />
   <img src="https://img.shields.io/badge/Microsoft_Azure-Enterprise-0078D4?style=for-the-badge&logo=microsoft-azure" />
   <img src="https://img.shields.io/badge/Infrastructure_as_Code-Best_Practices-success?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Security-Zero_Passwords-critical?style=for-the-badge" />
