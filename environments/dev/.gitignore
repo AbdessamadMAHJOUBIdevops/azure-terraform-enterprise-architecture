@@ -39,4 +39,7 @@ Thumbs.db
 # Dossier de configuration VS Code (optionnel mais recommandé)
 .vscode/
 
-../terraform-docs.exe
+# --- TOOLS & BINARIES ---
+*.exe
+terraform-docs.exe
+.terraform-docs.yml
