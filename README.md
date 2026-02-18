@@ -7,7 +7,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Terraform-1.10+-623CE4?style=for-the-badge&logo=terraform" />
-  <img src="https://img.shields.io/badge/Microsoft_Azure-Enterprise-0078D4?style=for-the-badge&logo=microsoft-azure" />
+  <img src="https://img.shields.io/badge/Microsoft_Azure-~> 3.0-0078D4?style=for-the-badge&logo=microsoft-azure" />
   <img src="https://img.shields.io/badge/Infrastructure_as_Code-Best_Practices-success?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Security-Zero_Passwords-critical?style=for-the-badge" />
 </p>
@@ -103,7 +103,7 @@ graph TD
 
 ## 🚀 Déploiement
 ### ✅ Pré‑requis
-- Terraform ≥ 1.0
+- Terraform ≥ 1.10
 - Azure CLI installé
 - Authentification Azure :
 
@@ -121,6 +121,4 @@ terraform apply
 
 
 
-👤 Auteur
-Abdessamad Mahjoubi - DevOps & Cloud Engineer
  
