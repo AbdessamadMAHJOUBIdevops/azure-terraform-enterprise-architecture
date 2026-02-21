@@ -1,0 +1,20 @@
+name: 1 - Hello world reboot
+
+on:
+    push:
+        branches:
+            - main
+jobs:
+    mon-premier-job:
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: Le reboot dit bonjour
+            run: echo "Salut Abdessamad"
+
+          -  name: Vérifier le système
+             run: |
+              echo "Voici la machine sur laquelle je tourne"
+              cat /etc/os-release
+
+            
