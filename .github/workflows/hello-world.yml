@@ -1,20 +1,31 @@
-name: 1 - Hello world reboot
+name: 2 - Test Connexion Azure OIDC 🔐
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
+
+# OBLIGATOIRE POUR L'OIDC : On autorise le robot à demander un jeton (token)
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-    mon-premier-job:
-        runs-on: ubuntu-latest
+  test-azure-login:
+    runs-on: ubuntu-latest
 
-        steps:
-          - name: Le reboot dit bonjour
-            run: echo "Salut Abdessamad"
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
 
-          -  name: Vérifier le système
-             run: |
-              echo "Voici la machine sur laquelle je tourne"
-              cat /etc/os-release
+      - name: Connexion à Azure sans mot de passe (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-            
+      - name: Vérification de la connexion
+        run: |
+          echo "Connexion réussie ! Voici les infos de ma souscription :"
+          az account show
