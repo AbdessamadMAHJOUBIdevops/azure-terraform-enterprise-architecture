@@ -17,3 +17,5 @@ variable "location" {
     default = "francecentral"
   
 }
+
+# Test de la pipeline CI
