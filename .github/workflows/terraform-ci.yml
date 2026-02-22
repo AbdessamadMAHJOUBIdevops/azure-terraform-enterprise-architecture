@@ -37,6 +37,11 @@ jobs:
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+           - name: Création de la clé SSH pour Terraform
+             run: |
+               mkdir -p ~/.ssh
+               echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" > ~/.ssh/azure_project_key.pub
+
            - name: Terraform Init
              run: terraform init
 
