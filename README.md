@@ -1,86 +1,82 @@
-# ☁️ Azure Enterprise Infrastructure with Terraform
+# ☁️ Azure Enterprise Infrastructure with Terraform & Ansible
 
-> **Infrastructure Cloud sécurisée, modulaire et prête pour la production sur Microsoft Azure**, conçue selon les standards **Enterprise / DevOps / FinOps**.
+> **Infrastructure Cloud sécurisée, modulaire et prête pour la production sur Microsoft Azure**, conçue selon les standards **Enterprise / DevOps / GitOps**.
 
 [![Made by DigitalPro](https://img.shields.io/badge/Made%20by-MAHJOUBI-Portfolio)](https://abdessamadmahjoubidevops.github.io/portfolio/)
 
-
 <p align="center">
   <img src="https://img.shields.io/badge/Terraform-1.10+-623CE4?style=for-the-badge&logo=terraform" />
+  <img src="https://img.shields.io/badge/Ansible-RedHat-EE0000?style=for-the-badge&logo=ansible" />
+  <img src="https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?style=for-the-badge&logo=github-actions" />
   <img src="https://img.shields.io/badge/Microsoft_Azure-~> 3.0-0078D4?style=for-the-badge&logo=microsoft-azure" />
-  <img src="https://img.shields.io/badge/Infrastructure_as_Code-Best_Practices-success?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Security-Zero_Passwords-critical?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Security-OIDC_Zero_Passwords-critical?style=for-the-badge" />
 </p>
 
 ---
 
 ## 📌 Présentation
 
-Ce projet déploie une **architecture Web 2‑tiers sécurisée** sur **Microsoft Azure**, entièrement automatisée avec **Terraform**, respectant les meilleures pratiques professionnelles :
+Ce projet déploie une **architecture Web 2‑tiers sécurisée** sur **Microsoft Azure**, avec une approche **100% GitOps**. La création de l'infrastructure est gérée par **Terraform**, la configuration logicielle par **Ansible**, et l'ensemble du cycle de vie est automatisé via **GitHub Actions**.
 
-- Sécurité by‑design
-- Modularité & réutilisabilité
-- Gouvernance Cloud
-- FinOps & Tagging
-- Prêt pour CI/CD & production
+- **Sécurité by‑design** : Authentification OIDC (Zero Trust) et flux réseau restreints.
+- **GitOps & CI/CD** : Déploiement et destruction automatisés par pipelines.
+- **Configuration dynamique** : Serveur Web configuré via des templates Jinja2 avec Ansible.
+- **Gouvernance & FinOps** : Tagging systématique et bouton d'autodestruction pour maîtriser les coûts.
 
 ---
 
 ## ✨ Fonctionnalités Clés
-### 🧩 Modularité
-- Architecture Terraform **100 % modulaire**
-- Modules réutilisables :
-    - `network`
-    - `compute`
----
+
+### 🤖 CI/CD & GitOps (GitHub Actions)
+- **CI (Garde du corps)** : Formatage, validation et `terraform plan` sur chaque Pull Request.
+- **CD (Déploiement Continu)** : `terraform apply` automatique lors du merge sur la branche `main`.
+- **FinOps (Bouton Rouge)** : Workflow de destruction manuelle (`workflow_dispatch`) pour économiser les crédits Cloud.
+
+### ⚙️ Configuration Management (Ansible)
+- Déploiement "Agentless" via SSH sécurisé.
+- Utilisation de **Variables** et de **Templates Jinja2** pour une configuration Nginx dynamique.
+- Gestion de l'idempotence avec les **Handlers** (redémarrage du service uniquement si modification).
+
+### 🧩 Infrastructure as Code (Terraform)
+- Architecture **100 % modulaire** (`network`, `compute`).
+- **Remote Backend** sur Azure Storage Account avec State Locking.
 
 ### 🔐 Sécurité
-- 🔑 Authentification **SSH uniquement**
-- ❌ Aucun mot de passe stocké
-- 🛡️ **NSG strictement configuré**
-- 🔒 **Terraform Remote State**
-- Azure Storage Account
-- Verrouillage d’état (*State Locking*)
+- 🔑 Authentification Cloud via **OIDC (OpenID Connect)** : Aucun secret Azure stocké dans GitHub.
+- 🛡️ **NSG strictement configuré** (Ports 22 et 80 uniquement).
+- 🤫 Injection de clés SSH dynamiques dans les runners CI/CD.
 
 ---
 
+## 🏗️ Architecture Cloud & GitOps
 
-
-
-
-
-
-
-## 🏗️ Architecture Cloud
-
-### 🔹 Vue d’ensemble
+### 🔹 Vue d’ensemble du Workflow
 
 ```mermaid
 graph TD
-    User((🌍 Internet User)) -->|HTTP :80| PIP[🌐 Public IP]
+    Dev((👨‍💻 Développeur)) -->|Push / PR| GitHub[🐙 GitHub Repository]
+    
+    subgraph CI_CD["⚙️ GitHub Actions (Pipelines)"]
+        CI[🔍 CI: Format & Plan]
+        CD[🚀 CD: Terraform Apply]
+        Ans[🎨 Config: Ansible Playbook]
+    end
 
-    subgraph Azure["☁️ Microsoft Azure"]
-        subgraph VNet["🔐 Virtual Network"]
+    GitHub -->|Pull Request| CI
+    GitHub -->|Merge to Main| CD
+    CD -->|Trigger| Ans
+
+    subgraph Azure["☁️ Microsoft Azure (OIDC Auth)"]
+        subgraph VNet["🔐 Virtual Network (VNet)"]
             subgraph PublicSubnet["🟦 Public Subnet"]
-                PIP --> VM[🐧 Linux VM<br/>Nginx]
+                PIP[🌐 Public IP] --> VM[🐧 Linux VM + Nginx]
                 NSG[🛡️ Network Security Group] -.-> VM
-            end
-
-            subgraph PrivateSubnet["🟩 Private Subnet"]
-                DB[(🗄️ Future Database)]
             end
         end
     end
 
-
-
-
-
-
-
-
-
-
+    CD -->|Provisioning| Azure
+    Ans -->|SSH Configuration| VM
 
 ```
 
@@ -90,34 +86,44 @@ graph TD
 
 ```
 
-├── modules/                  # Modules réutilisables (Network, Compute)
-├── environments/             # Environnements (Dev, Prod...)
+├── .github/
+│   └── workflows/            # Pipelines CI/CD (Plan, Apply, Destroy)
+├── ansible/                  # Configuration Management
+│   ├── files/                # Code source de la WebApp (HTML/CSS)
+│   ├── templates/            # Fichiers de configuration dynamiques (Jinja2)
+│   ├── deploy-webapp.yml     # Playbook principal
+│   └── inventory.ini         # Inventaire des cibles Azure
+├── environments/             # Environnements Terraform (Dev, Prod...)
 │   └── dev/
 │       ├── main.tf           # Point d'entrée
-│       ├── provider.tf       # Backend Azure Storage
+│       ├── provider.tf       # Backend Azure Storage & Provider OIDC
 │       └── terraform.tfvars  # Variables (Région, Projet...)
+├── modules/                  # Modules réutilisables Terraform (Network, Compute)
 └── README.md                 # Documentation
-
 ```
 
 
-## 🚀 Déploiement
-### ✅ Pré‑requis
-- Terraform ≥ 1.10
-- Azure CLI installé
-- Authentification Azure :
 
-```bash
-az login
-git clone https://github.com/AbdessamadMAHJOUBIdevops/azure-terraform-enterprise-architecture.git
-cd azure-enterprise-project/environments/dev
-terraform init
-terraform plan
-terraform apply 
+
+## 🚀 Déploiement 
+Ce projet est conçu pour être déployé exclusivement via GitHub Actions (GitOps).
+
+1. #### Forker ou cloner ce dépôt
+
+2. ####  Configurer les GitHub Secrets :
+
+- ✅AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (Pour OIDC).
+
+- ✅AZURE_SSH_PUBLIC_KEY (Pour Terraform).
+
+- ✅AZURE_SSH_PRIVATE_KEY (Pour Ansible).
+
+3. #### Pousser sur la branche `main`  pour déclencher le provisionnement de bout en bout.
+
+4. #### Utiliser le workflow `Terraform Destroy` pour décommissionner l'infrastructure.
 
 ```
-
----
+```
 
 
 
