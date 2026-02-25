@@ -192,4 +192,4 @@ Here is the visual evidence of the infrastructure deployed on Azure.
 
 ### 3. Application Live
 *Nginx web server successfully bootstrapped via Cloud-init.*
-![Nginx Welcome Page](assets/nginx-proof.png)
+![Nginx Welcome Page](assets/page-web-finale.png)
