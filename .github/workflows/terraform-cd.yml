@@ -47,3 +47,25 @@ jobs:
 
             - name: Terraform Apply 
               run: terraform apply -auto-approve -input=false -var="environment=dev" -var="project_name=potforlioproj"
+
+            - name: Récuperer l'IP de la VM depuis Terraform 
+              id: get_ip
+              run: |
+                VM_IP=$(terraform output -raw web_server_ip)
+                echo "VM_IP=$VM_IP" >> $GITHUB_ENV
+                echo "L'IP récupérée est : $VM_IP"
+
+            - name:  Générer l'inventaire Ansible dynamiquement
+              run: |
+                # On remonte à la racine et on crée le fichier inventory.ini avec la bonne IP
+                 echo "[webservers]" > ../../ansible/inventory.ini
+                 echo "$env.VM_IP ansible_user=adminuser ansible_ssh_private_key_file=~/.ssh/azure_project_key" >> ../../ansible/inventory.ini
+                 cat ../../ansible/inventory.ini
+
+            - name: ⚙️ Exécuter le Playbook Ansible
+              env:
+               # C'est ÇA l'astuce magique pour que le robot ne bloque pas sur la question "yes/no" de SSH !
+                ANSIBLE_HOST_KEY_CHECKING: False 
+              run: |
+                # Le robot exécute Ansible en ciblant le dossier de configuration
+                ansible-playbook -i ../../ansible/inventory.ini ../../ansible/deploy-webapp.yml

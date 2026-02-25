@@ -1,0 +1,62 @@
+---
+- name:  Déploiement de la WebApp Custom
+  hosts: webservers
+  become: yes
+
+  # 1️⃣ NOS VARIABLES
+  vars:
+    http_port: 80
+    app_dir: /var/www/portfolio
+
+  # 2️⃣ NOS TÂCHES
+  tasks:
+    - name:  S'assurer que Nginx est installé
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Créer le dossier pour notre application
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name:  Copier notre page HTML
+      copy:
+        src: files/index.html
+        dest: "{{ app_dir }}/index.html"
+        mode: '0644'
+
+    - name:  Générer la configuration Nginx depuis le template
+      template:
+        src: templates/webapp.conf.j2
+        dest: /etc/nginx/sites-available/webapp.conf
+      # Si ce fichier change, on appelle le "handler" pour redémarrer Nginx !
+      notify: Restart Nginx
+
+    - name:  Activer notre configuration (Création du lien symbolique)
+      file:
+        src: /etc/nginx/sites-available/webapp.conf
+        dest: /etc/nginx/sites-enabled/webapp.conf
+        state: link
+      notify: Restart Nginx
+
+    - name: Désactiver la page par défaut de Nginx
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Restart Nginx
+
+    - name:  S'assurer que Nginx est démarré
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+  # 3️⃣ NOS HANDLERS (Les actions déclenchées sur demande)
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
