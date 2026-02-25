@@ -6,8 +6,8 @@ on:
         - main
 
 permissions:
-    id-token: write
-    contents: read
+  id-token: write
+  contents: read
 
 env:
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -16,56 +16,58 @@ env:
   ARM_USE_OIDC: true
 
 jobs:
-    terraform-apply:
-        name: 'Terraform Apply'
-        runs-on: ubuntu-latest
+  terraform-apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
 
-        defaults:
-            run:
-                working-directory: ./environments/dev
-        steps:
-            - name: Checkout du code
-              uses: actions/checkout@v4
+    defaults:
+      run:
+        working-directory: ./environments/dev
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
 
-            - name: Installation de terraform
-              uses: hashicorp/setup-terraform@v3
+      - name: Installation de terraform
+        uses: hashicorp/setup-terraform@v3
 
-            - name: Connexion à Azure (OIDC)
-              uses: azure/login@v2
-              with:
-               client-id: ${{ secrets.AZURE_CLIENT_ID }}
-               tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-               subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Connexion à Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-            - name: Création de la clé SSH pour Terraform
-              run: |
-                mkdir -p ~/.ssh
-                echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" > ~/.ssh/azure_project_key.pub
+      - name:  Création des clés SSH (Publique ET Privée)
+        run: |
+          mkdir -p ~/.ssh
+          # Le cadenas pour Terraform
+          echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" > ~/.ssh/azure_project_key.pub
+          # La vraie clé pour Ansible
+          echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/azure_project_key
+          chmod 600 ~/.ssh/azure_project_key
 
-            - name: Terraform Init
-              run: terraform init 
+      - name: 🏗️ Terraform Init
+        run: terraform init 
 
-            - name: Terraform Apply 
-              run: terraform apply -auto-approve -input=false -var="environment=dev" -var="project_name=potforlioproj"
+      - name:  Terraform Apply 
+        run: terraform apply -auto-approve -input=false -var="environment=dev" -var="project_name=potforlioproj"
 
-            - name: Récuperer l'IP de la VM depuis Terraform 
-              id: get_ip
-              run: |
-                VM_IP=$(terraform output -raw web_server_ip)
-                echo "VM_IP=$VM_IP" >> $GITHUB_ENV
-                echo "L'IP récupérée est : $VM_IP"
+      - name:  Récupérer l'IP de la VM depuis Terraform 
+        id: get_ip
+        run: |
+          VM_IP=$(terraform output -raw web_server_ip)
+          echo "IP=$VM_IP" >> $GITHUB_OUTPUT
+          echo "L'IP récupérée est : $VM_IP"
 
-            - name:  Générer l'inventaire Ansible dynamiquement
-              run: |
-                # On remonte à la racine et on crée le fichier inventory.ini avec la bonne IP
-                 echo "[webservers]" > ../../ansible/inventory.ini
-                 echo "$env.VM_IP ansible_user=adminuser ansible_ssh_private_key_file=~/.ssh/azure_project_key" >> ../../ansible/inventory.ini
-                 cat ../../ansible/inventory.ini
+      - name:  Générer l'inventaire Ansible dynamiquement
+        run: |
+          echo "[webservers]" > ../../ansible/inventory.ini
+          # Ici, la variable appelle la bonne IP !
+          echo "${{ steps.get_ip.outputs.IP }} ansible_user=adminuser ansible_ssh_private_key_file=~/.ssh/azure_project_key" >> ../../ansible/inventory.ini
+          cat ../../ansible/inventory.ini
 
-            - name: ⚙️ Exécuter le Playbook Ansible
-              env:
-               # C'est ÇA l'astuce magique pour que le robot ne bloque pas sur la question "yes/no" de SSH !
-                ANSIBLE_HOST_KEY_CHECKING: False 
-              run: |
-                # Le robot exécute Ansible en ciblant le dossier de configuration
-                ansible-playbook -i ../../ansible/inventory.ini ../../ansible/deploy-webapp.yml
+      - name:  Exécuter le Playbook Ansible
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False 
+        run: |
+          ansible-playbook -i ../../ansible/inventory.ini ../../ansible/deploy-webapp.yml
